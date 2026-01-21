@@ -121,6 +121,8 @@ python query_data.py query --pair SOL-ZAR --limit 100
 
 如需部署到 AWS EC2 或其他云服务器进行 24/7 数据采集，请参考：
 
-📖 **[AWS EC2 部署指南](AWS_DEPLOYMENT_GUIDE.md)**
+📋 **[快速部署清单](DEPLOYMENT_CHECKLIST.md)** - 一页式部署步骤（推荐）
 
-包含完整的部署步骤、监控脚本、故障排查和最佳实践。
+📖 **[AWS EC2 部署指南](AWS_DEPLOYMENT_GUIDE.md)** - 完整部署指南（695 行详细说明）
+
+📦 **[S3 导出配置指南](S3_EXPORT_GUIDE.md)** - S3 周导出和数据访问

@@ -8,12 +8,12 @@ Simple guide to set up weekly automatic export to S3 with local data cleanup.
 
 **What this does:**
 - Exports data to S3 every week (compressed CSV files)
-- Keeps last 14 days of data locally
+- Keeps last 7 days of data locally
 - Deletes older data to save disk space
 - Organizes S3 files by year/month for easy access
 
 **Storage usage:**
-- Local: ~700 MB (14 days of data)
+- Local: ~350 MB (7 days of data)
 - S3: ~100 MB per week (compressed)
 - Annual S3 cost: ~$1.50/year
 
@@ -386,7 +386,7 @@ aws s3 ls s3://valr-data/ --region ap-southeast-2
 ✅ **Cheap**: ~$1.50/year for S3 storage
 ✅ **SQL-like access**: Use pandas to query CSV files
 ✅ **Batch download**: Download all data with one command
-✅ **Safe**: Keeps 14 days locally, everything in S3
+✅ **Safe**: Keeps 7 days locally, everything in S3
 
 **Next steps:**
 1. Create S3 bucket

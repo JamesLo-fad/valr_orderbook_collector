@@ -1,128 +1,128 @@
 # VALR Orderbook Recorder
 
-VALR 交易所订单簿数据采集器 - 通过 WebSocket 实时采集订单簿数据并存储到 SQLite 数据库。
+Real-time orderbook data collector for VALR exchange - Collects orderbook data via WebSocket and stores to SQLite database.
 
-## 功能特性
+## Features
 
-- **实时采集**: 通过 WebSocket 连接 VALR 交易所，订阅订单簿更新
-- **多交易对支持**: 同时采集多个交易对数据（USDT-ZAR, SOL-ZAR, ETH-ZAR, BTC-ZAR, XRP-ZAR, BNB-ZAR）
-- **多档深度**: 支持配置采集深度（默认 10 档）
-- **持久存储**: 数据存储到 SQLite 数据库，支持长期运行
-- **自动重连**: 断线自动重连机制
-- **数据导出**: 支持导出为 CSV 格式
-- **统计查询**: 内置数据统计和查询工具
+- **Real-time Collection**: Connect to VALR exchange via WebSocket and subscribe to orderbook updates
+- **Multi-Pair Support**: Collect data for multiple trading pairs simultaneously (USDT-ZAR, SOL-ZAR, ETH-ZAR, BTC-ZAR, XRP-ZAR, BNB-ZAR)
+- **Configurable Depth**: Support configurable collection depth (default 10 levels)
+- **Persistent Storage**: Store data to SQLite database for long-term operation
+- **Auto Reconnect**: Automatic reconnection mechanism on disconnection
+- **Data Export**: Support export to CSV format
+- **Statistics Query**: Built-in data statistics and query tools
 
-## 项目结构
+## Project Structure
 
 ```
 valr-orderbook-recorder/
-├── run_recorder.py              # 单交易对采集器
-├── run_multi_pair_recorder.py   # 多交易对并发采集器（推荐）
-├── query_data.py                # 数据查询和导出工具
-├── requirements.txt             # Python 依赖
-├── README.md                    # 本文档
-└── valr_orderbook_recorder/     # 核心模块
+├── run_recorder.py              # Single-pair collector
+├── run_multi_pair_recorder.py   # Multi-pair concurrent collector (recommended)
+├── query_data.py                # Data query and export tool
+├── requirements.txt             # Python dependencies
+├── README.md                    # This document
+└── valr_orderbook_recorder/     # Core module
     ├── __init__.py
-    ├── database.py              # SQLite 数据库操作
-    └── websocket_collector.py   # WebSocket 采集器
+    ├── database.py              # SQLite database operations
+    └── websocket_collector.py   # WebSocket collector
 ```
 
-## 安装
+## Installation
 
 ```bash
 cd valr-orderbook-recorder
 pip install -r requirements.txt
 ```
 
-## 使用方法
+## Usage
 
-### 启动多交易对采集器（推荐）
+### Start Multi-Pair Collector (Recommended)
 
 ```bash
-# 采集所有默认交易对（USDT-ZAR, SOL-ZAR, ETH-ZAR, BTC-ZAR, XRP-ZAR, BNB-ZAR）
+# Collect all default trading pairs (USDT-ZAR, SOL-ZAR, ETH-ZAR, BTC-ZAR, XRP-ZAR, BNB-ZAR)
 python run_multi_pair_recorder.py
 
-# 采集指定交易对
+# Collect specific trading pairs
 python run_multi_pair_recorder.py --pairs BTC-ZAR ETH-ZAR SOL-ZAR
 
-# 自定义时长和深度
+# Custom duration and depth
 python run_multi_pair_recorder.py --days 30 --depth 20
 
-# 后台运行
+# Run in background
 nohup python run_multi_pair_recorder.py > recorder.log 2>&1 &
 ```
 
-### 启动单交易对采集器
+### Start Single-Pair Collector
 
 ```bash
-# 默认采集 BTC-ZAR，90 天
+# Default: collect BTC-ZAR for 90 days
 python run_recorder.py
 
-# 自定义交易对和时长
+# Custom trading pair and duration
 python run_recorder.py --pair ETH-ZAR --days 7 --depth 20
 
-# 后台运行
+# Run in background
 nohup python run_recorder.py > recorder.log 2>&1 &
 ```
 
-### 查询数据
+### Query Data
 
 ```bash
-# 查看所有交易对的统计信息
+# View statistics for all trading pairs
 python query_data.py stats --all
 
-# 查看特定交易对的统计信息
+# View statistics for specific trading pair
 python query_data.py stats --pair BTC-ZAR
 
-# 导出特定交易对的全部数据到 CSV
+# Export all data for specific trading pair to CSV
 python query_data.py export --pair BTC-ZAR --output btc_data.csv
 
-# 导出指定日期范围
+# Export specific date range
 python query_data.py export --pair ETH-ZAR --start 2025-01-21 --end 2025-01-22 --output eth_day1.csv
 
-# 查询最近的快照
+# Query recent snapshots
 python query_data.py query --pair SOL-ZAR --limit 100
 ```
 
-## 数据格式
+## Data Format
 
-### 数据库表结构
+### Database Table Structure
 
-**orderbook_snapshots** - 订单簿快照表
-| 字段 | 类型 | 说明 |
+**orderbook_snapshots** - Orderbook snapshot table
+| Field | Type | Description |
 |------|------|------|
-| id | INTEGER | 主键 |
-| timestamp | DATETIME | 时间戳 |
-| trading_pair | TEXT | 交易对 (如 BTC-ZAR) |
-| sequence_number | INTEGER | 交易所序列号 |
-| bids | TEXT | 买盘 JSON (价格, 数量) |
-| asks | TEXT | 卖盘 JSON (价格, 数量) |
-| bid_depth | REAL | 买盘深度 (总价值) |
-| ask_depth | REAL | 卖盘深度 (总价值) |
-| spread | REAL | 买卖价差 |
-| mid_price | REAL | 中间价 |
+| id | INTEGER | Primary key |
+| timestamp | DATETIME | Timestamp |
+| trading_pair | TEXT | Trading pair (e.g. BTC-ZAR) |
+| sequence_number | INTEGER | Exchange sequence number |
+| bids | TEXT | Bid side JSON (price, quantity) |
+| asks | TEXT | Ask side JSON (price, quantity) |
+| bid_depth | REAL | Bid depth (total value) |
+| ask_depth | REAL | Ask depth (total value) |
+| spread | REAL | Bid-ask spread |
+| mid_price | REAL | Mid price |
 
-### CSV 导出格式
+### CSV Export Format
 
-导出的 CSV 文件包含以下列：
-- 基础信息: id, timestamp, trading_pair, sequence_number
-- 计算指标: spread, mid_price, bid_depth, ask_depth
-- 10档买卖盘: bid1_price, bid1_qty, bid2_price, bid2_qty, ..., ask1_price, ask1_qty, ...
+Exported CSV files contain the following columns:
+- Basic info: id, timestamp, trading_pair, sequence_number
+- Calculated metrics: spread, mid_price, bid_depth, ask_depth
+- 10-level orderbook: bid1_price, bid1_qty, bid2_price, bid2_qty, ..., ask1_price, ask1_qty, ...
 
-## 技术说明
+## Technical Details
 
-- WebSocket 端点: `wss://api.valr.com/ws/trade`
-- 订阅事件: `FULL_ORDERBOOK_UPDATE`
-- 数据库: SQLite (轻量级，无需额外服务)
-- 并发采集: 使用 asyncio 实现多交易对并发采集
-- 数据库文件: 每个交易对独立存储（如 `data/btc_zar_orderbook.db`）
+- WebSocket endpoint: `wss://api.valr.com/ws/trade`
+- Subscription event: `FULL_ORDERBOOK_UPDATE`
+- Database: SQLite (lightweight, no additional services required)
+- Concurrent collection: Multi-pair concurrent collection using asyncio
+- Database files: Each trading pair stored independently (e.g. `data/btc_zar_orderbook.db`)
 
-## 部署到生产环境
+## Production Deployment
 
-如需部署到 AWS EC2 或其他云服务器进行 24/7 数据采集，请参考：
+For deploying to AWS EC2 or other cloud servers for 24/7 data collection, refer to:
 
-📋 **[快速部署清单](DEPLOYMENT_CHECKLIST.md)** - 一页式部署步骤（推荐）
+📋 **[Deployment Checklist](DEPLOYMENT_CHECKLIST.md)** - One-page deployment steps (recommended)
 
-📖 **[AWS EC2 部署指南](AWS_DEPLOYMENT_GUIDE.md)** - 完整部署指南（695 行详细说明）
+📖 **[AWS EC2 Deployment Guide](AWS_DEPLOYMENT_GUIDE.md)** - Complete deployment guide (695 lines of detailed instructions)
 
-📦 **[S3 导出配置指南](S3_EXPORT_GUIDE.md)** - S3 周导出和数据访问
+📦 **[S3 Export Configuration Guide](S3_EXPORT_GUIDE.md)** - S3 weekly export and data access

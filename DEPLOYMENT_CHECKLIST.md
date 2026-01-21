@@ -8,7 +8,7 @@ Quick checklist for deploying to EC2 with S3 weekly export.
 
 - **EC2 Instance**: `i-08090f49dc147f9fc` (ap-southeast-2)
 - **S3 Bucket**: `valr-data` (ap-southeast-2)
-- **Storage**: 8 GiB gp3 (sufficient for 14 days local retention)
+- **Storage**: 8 GiB gp3 (sufficient for 7 days local retention)
 - **Trading Pairs**: USDT-ZAR, SOL-ZAR, ETH-ZAR, BTC-ZAR, XRP-ZAR, BNB-ZAR
 
 ---
@@ -23,23 +23,25 @@ Quick checklist for deploying to EC2 with S3 weekly export.
 
 ## Step 1: IAM Role Setup
 
-**Option A: AWS Console** (Recommended for beginners)
-1. Go to IAM → Roles → Create Role
-2. Select "AWS Service" → "EC2"
-3. Create policy with S3 access (see `S3_EXPORT_GUIDE.md` Step 2)
-4. Name role: `valr-recorder-s3-access`
-5. Attach to instance `i-08090f49dc147f9fc`
+Attach IAM role to EC2 instance for S3 access.
 
-**Option B: AWS CLI** (For automation)
+**Quick CLI Command:**
 ```bash
-# See S3_EXPORT_GUIDE.md Step 2 for complete commands
+# See S3_EXPORT_GUIDE.md Step 2 for detailed instructions
 aws ec2 associate-iam-instance-profile \
     --instance-id i-08090f49dc147f9fc \
     --iam-instance-profile Name=valr-recorder-s3-profile \
     --region ap-southeast-2
 ```
 
-**Verify IAM role attached:**
+**Or use AWS Console:**
+1. IAM → Roles → Create Role → EC2
+2. Create policy with S3 access to `valr-data` bucket
+3. Attach to instance `i-08090f49dc147f9fc`
+
+📖 **Detailed instructions**: See `S3_EXPORT_GUIDE.md` Step 2
+
+**Verify:**
 ```bash
 aws ec2 describe-instances \
     --instance-ids i-08090f49dc147f9fc \
@@ -78,8 +80,12 @@ aws s3 ls s3://valr-data --region ap-southeast-2
 
 ## Step 3: Set Up Systemd Service
 
+Create systemd service for automatic startup and restart.
+
+📖 **Detailed instructions**: See `AWS_DEPLOYMENT_GUIDE.md` Section 4
+
+**Quick setup:**
 ```bash
-# Create service file
 sudo nano /etc/systemd/system/valr-recorder.service
 ```
 
@@ -104,36 +110,31 @@ StandardError=append:/opt/valr-recorder/logs/service-error.log
 WantedBy=multi-user.target
 ```
 
+**Enable and start:**
 ```bash
-# Enable and start service
 sudo systemctl daemon-reload
 sudo systemctl enable valr-recorder
 sudo systemctl start valr-recorder
-
-# Check status
 sudo systemctl status valr-recorder
-
-# View logs
-tail -f logs/service.log
 ```
 
 ---
 
 ## Step 4: Test Export Script
 
+Test S3 export before scheduling.
+
+📖 **Detailed instructions**: See `S3_EXPORT_GUIDE.md` Step 4
+
 ```bash
 cd /opt/valr-recorder
-
-# Make executable
 chmod +x export_to_s3.sh
 
-# Run manual test (will export last 7 days)
+# Run manual test
 ./export_to_s3.sh
 
-# Check export log
+# Check logs and S3
 tail -f logs/export.log
-
-# Verify files uploaded to S3
 aws s3 ls s3://valr-data/valr-orderbook/ --recursive --region ap-southeast-2
 ```
 
@@ -141,14 +142,17 @@ aws s3 ls s3://valr-data/valr-orderbook/ --recursive --region ap-southeast-2
 
 ## Step 5: Schedule Weekly Export
 
+Set up cron job for automatic weekly export.
+
+📖 **Detailed instructions**: See `S3_EXPORT_GUIDE.md` Step 5
+
 ```bash
-# Edit crontab
 crontab -e
 
 # Add this line (runs every Sunday at 2 AM)
 0 2 * * 0 /opt/valr-recorder/export_to_s3.sh
 
-# Verify cron job
+# Verify
 crontab -l
 ```
 
@@ -179,7 +183,7 @@ aws s3 ls s3://valr-data/valr-orderbook/ --recursive --region ap-southeast-2
 # Check export logs
 tail -50 logs/export.log
 
-# Verify local data retention (should be ~14 days)
+# Verify local data retention (should be ~7 days)
 for db in data/*.db; do
     echo "=== $(basename $db) ==="
     sqlite3 "$db" "SELECT
@@ -195,16 +199,19 @@ done
 ## Storage Estimates
 
 **Current Configuration:**
-- Local retention: 14 days
+- Local retention: 7 days
 - 6 trading pairs
 - ~1 KB per snapshot
-- Estimated: ~7 GB for 14 days
+- Estimated: ~3.5 GB for 7 days
 
 **If disk fills up:**
 ```bash
-# Reduce retention to 7 days
+# Check actual usage
+du -sh data/*.db
+
+# Reduce retention to 3 days if needed
 nano export_to_s3.sh
-# Change: RETENTION_DAYS=7
+# Change: RETENTION_DAYS=3
 
 # Run cleanup manually
 ./export_to_s3.sh
@@ -213,6 +220,8 @@ nano export_to_s3.sh
 ---
 
 ## Data Access
+
+📖 **Detailed instructions**: See `S3_EXPORT_GUIDE.md` - "How to Access Your Data"
 
 ### Download Specific Week
 ```bash
@@ -230,8 +239,6 @@ find ./all-data -name "*.gz" -exec gunzip {} \;
 ```python
 import pandas as pd
 df = pd.read_csv('btc_zar_20250122.csv')
-
-# SQL-like queries
 result = df.query('mid_price > 1000000')
 daily_avg = df.groupby('trading_pair')['spread'].mean()
 ```
@@ -240,37 +247,25 @@ daily_avg = df.groupby('trading_pair')['spread'].mean()
 
 ## Troubleshooting
 
+📖 **Detailed troubleshooting**: See `AWS_DEPLOYMENT_GUIDE.md` Section 10
+
 ### Service not starting
 ```bash
-# Check logs
 sudo journalctl -u valr-recorder -n 50
 tail -f logs/service-error.log
-
-# Test manually
-cd /opt/valr-recorder
-source venv/bin/activate
-python run_multi_pair_recorder.py
 ```
 
 ### Export failing
 ```bash
-# Check IAM role
 aws sts get-caller-identity --region ap-southeast-2
-
-# Test S3 access
 aws s3 ls s3://valr-data/ --region ap-southeast-2
-
-# Run with debug
 bash -x export_to_s3.sh
 ```
 
 ### Disk filling up
 ```bash
-# Check actual usage
 du -sh data/*.db
-
-# Reduce retention immediately
-nano export_to_s3.sh  # Change RETENTION_DAYS=7
+nano export_to_s3.sh  # Change RETENTION_DAYS=3
 ./export_to_s3.sh
 ```
 

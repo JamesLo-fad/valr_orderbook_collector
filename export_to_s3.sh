@@ -10,7 +10,7 @@ AWS_REGION="ap-southeast-2"
 EXPORT_DIR="/opt/valr-recorder/exports"
 DATA_DIR="/opt/valr-recorder/data"
 LOG_FILE="/opt/valr-recorder/logs/export.log"
-RETENTION_DAYS=14  # Keep last 14 days locally (adjust to 7 if disk fills up)
+RETENTION_DAYS=7  # Keep last 7 days locally
 
 # Trading pairs
 PAIRS=("USDT-ZAR" "SOL-ZAR" "ETH-ZAR" "BTC-ZAR" "XRP-ZAR" "BNB-ZAR")

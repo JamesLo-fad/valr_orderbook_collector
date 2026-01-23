@@ -123,6 +123,8 @@ For deploying to AWS EC2 or other cloud servers for 24/7 data collection, refer 
 
 📋 **[Deployment Checklist](DEPLOYMENT_CHECKLIST.md)** - One-page deployment steps (recommended)
 
-📖 **[AWS EC2 Deployment Guide](AWS_DEPLOYMENT_GUIDE.md)** - Complete deployment guide (695 lines of detailed instructions)
+📖 **[AWS EC2 Deployment Guide](AWS_DEPLOYMENT_GUIDE.md)** - Complete deployment guide with detailed instructions
 
 📦 **[S3 Export Configuration Guide](S3_EXPORT_GUIDE.md)** - S3 weekly export and data access
+
+🔧 **[Service Management Guide](SERVICE_MANAGEMENT_GUIDE.md)** - Managing systemd service and verifying data collection

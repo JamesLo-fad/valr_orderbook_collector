@@ -90,10 +90,10 @@ cd /opt/valr-recorder
 # Upload your code (choose one method):
 
 # Method 1: SCP from local machine
-# scp -i your-key.pem -r /path/to/valr-orderbook-recorder/* ubuntu@your-ec2-ip:/opt/valr-recorder/
+# scp -i your-key.pem -r /path/to/valr_orderbook_collector/* ubuntu@your-ec2-ip:/opt/valr-recorder/
 
 # Method 2: Git clone (if you have a repo)
-# git clone https://github.com/your-repo/valr-orderbook-recorder.git .
+# git clone https://github.com/JamesLo-fad/valr_orderbook_collector.git .
 
 # Create virtual environment
 python3 -m venv venv
@@ -103,7 +103,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 
 # Create necessary directories
-mkdir -p data logs
+mkdir -p data logs exports
 
 # Test the application
 python run_multi_pair_recorder.py --help
@@ -383,13 +383,13 @@ aws ec2 create-snapshot \
 **Option 2: S3 Backup**
 ```bash
 # Install AWS CLI
-sudo apt install awscli
+sudo apt install -y awscli
 
-# Configure credentials
+# Configure credentials (or use IAM role)
 aws configure
 
 # Sync to S3 daily
-aws s3 sync /opt/valr-recorder/data/ s3://your-bucket/valr-backups/
+aws s3 sync /opt/valr-recorder/data/ s3://valr-data/valr-backups/
 ```
 
 ### 5. Security ⚠️ CRITICAL
@@ -588,10 +588,10 @@ echo "Setting up Python environment..."
 python3 -m venv venv
 source venv/bin/activate
 pip install --upgrade pip
-pip install websockets
+pip install -r requirements.txt
 
 # Create directories
-mkdir -p data logs backups
+mkdir -p data logs exports backups
 
 # Create systemd service
 echo "Creating systemd service..."

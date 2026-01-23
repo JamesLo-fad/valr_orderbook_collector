@@ -15,7 +15,7 @@ Real-time orderbook data collector for VALR exchange - Collects orderbook data v
 ## Project Structure
 
 ```
-valr-orderbook-recorder/
+valr_orderbook_collector/
 ├── run_recorder.py              # Single-pair collector
 ├── run_multi_pair_recorder.py   # Multi-pair concurrent collector (recommended)
 ├── query_data.py                # Data query and export tool
@@ -30,7 +30,7 @@ valr-orderbook-recorder/
 ## Installation
 
 ```bash
-cd valr-orderbook-recorder
+cd valr_orderbook_collector
 pip install -r requirements.txt
 ```
 

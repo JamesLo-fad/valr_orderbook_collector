@@ -140,9 +140,6 @@ ssh -i your-key.pem ubuntu@your-ec2-ip
 # Navigate to project directory
 cd /opt/valr-recorder
 
-# Create exports directory
-mkdir -p exports
-
 # The export script is already configured with:
 # - S3_BUCKET="valr-data"
 # - AWS_REGION="ap-southeast-2"
@@ -261,7 +258,7 @@ print(daily_avg)
 ## S3 File Structure
 
 ```
-s3://your-bucket/valr-orderbook/
+s3://valr-data/valr-orderbook/
 ├── 2025/
 │   ├── 01/
 │   │   ├── btc_zar_20250115.csv.gz
